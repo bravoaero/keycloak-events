@@ -24,6 +24,33 @@ jobs:
         id: maven-build
         continue-on-error: true
         run: mvn --batch-mode --no-transfer-progress clean verify
+      - name: Report failed tests
+        if: steps.maven-build.outcome == 'failure'
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import glob
+          import xml.etree.ElementTree as ET
+
+          def escape(value):
+              return (value or "No failure details were recorded.").replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+          found = False
+          for report in glob.glob("target/surefire-reports/TEST-*.xml"):
+              root = ET.parse(report).getroot()
+              for case in root.iter("testcase"):
+                  failure = case.find("failure")
+                  if failure is None:
+                      failure = case.find("error")
+                  if failure is None:
+                      continue
+                  found = True
+                  title = f"{case.get('classname', 'test')}.{case.get('name', 'unknown')}"
+                  details = failure.get("message") or failure.text
+                  print(f"::error title={escape(title)}::{escape(details)[:7000]}")
+          if not found:
+              print("::error title=Maven build failure::No failed Surefire test case was found; inspect the Maven step.")
+          PY
       - name: Upload provider JAR
         if: steps.maven-build.outcome == 'success'
         uses: actions/upload-artifact@v7

@@ -1,7 +1,8 @@
-# GitHub Actions Workflows
+# GitHub Actions workflows
 
-The workflow files in this directory are managed and synced from an internal Phase Two repository. Please do not edit them directly here.
+This Bravo Aero fork owns the workflows in this directory.
 
-**If you are a p2-inc member** and want to modify a workflow, open a pull request in [p2-inc/shared-github-actions](https://github.com/p2-inc/shared-github-actions) instead.
-
-**If you are a third-party contributor** and have a suggestion or improvement in mind, please open an issue or a discussion in this repository to describe your plans — we're happy to consider it.
+- `ci.yml` builds and tests pushes to `main` and pull requests.
+- `release.yml` builds, tests, and publishes a GitHub Release when a tag matching
+  `v*-bravo.*` is pushed. The tag must match the Maven project version exactly.
+- The remaining validation workflows were inherited from upstream.

@@ -1,3 +1,37 @@
+> [!IMPORTANT]
+> This is a Bravo Aero maintained backport of Phase Two
+> [`keycloak-events`](https://github.com/p2-inc/keycloak-events). It is not an
+> official Phase Two release.
+
+# Bravo Aero backport
+
+Release `0.55-bravo.1` is based on upstream tag
+[`v0.55`](https://github.com/p2-inc/keycloak-events/tree/v0.55), targets
+Keycloak `26.5.7`, and backports the upstream fix for admin events whose
+authentication user cannot be resolved ([p2-inc/keycloak-events#123](https://github.com/p2-inc/keycloak-events/pull/123)).
+
+Download the supported JAR from this repository's
+[GitHub Releases](https://github.com/bravoaero/keycloak-events/releases). Do
+not use a newer upstream build with Keycloak `26.5.7`, because later upstream
+versions target a newer Keycloak SPI.
+
+The source and binary are distributed under the Elastic License 2.0. See
+[`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). The release workflow embeds both
+files in the generated JAR.
+
+## Building this backport
+
+Java 21 and Maven are required.
+
+```shell
+mvn --batch-mode --no-transfer-progress clean verify
+```
+
+The shaded provider JAR is written to
+`target/keycloak-events-0.55-bravo.1.jar`.
+
+---
+
 > :rocket: **Try it for free** in the new Phase Two [keycloak managed service](https://phasetwo.io/?utm_source=github&utm_medium=readme&utm_campaign=keycloak-events). See the [announcement and demo video](https://phasetwo.io/blog/self-service/) for more information.
 
 # keycloak-events

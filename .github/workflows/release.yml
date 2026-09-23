@@ -1,38 +1,54 @@
-name: release version
+name: Build and publish release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*-bravo.*'
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Release
-        uses: qcastel/github-actions-maven-release@master
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
         with:
-          release-branch-name: "main"
-          version-minor: true
+          java-version: 21
+          distribution: 'temurin'
+          cache: 'maven'
 
-          git-release-bot-name: "phasetwo-bot"
-          git-release-bot-email: "support@phasetwo.io"
+      - name: Verify tag matches Maven version
+        shell: bash
+        run: |
+          version="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          if [[ "v${version}" != "${GITHUB_REF_NAME}" ]]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match Maven version ${version}." >&2
+            exit 1
+          fi
 
-          maven-args: "-B -Dmaven.test.skip=true -DskipITs -Dmaven.deploy.skip=true"
+      - name: Build and test
+        run: mvn --batch-mode --no-transfer-progress clean verify
 
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Prepare release assets
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "target/keycloak-events-${GITHUB_REF_NAME#v}.jar" dist/
+          cp LICENSE NOTICE dist/
+          cd dist
+          sha256sum "keycloak-events-${GITHUB_REF_NAME#v}.jar" > "keycloak-events-${GITHUB_REF_NAME#v}.jar.sha256"
 
-          gpg-enabled: true
-          gpg-key-id: BC6B4EADEB514AFD
-          gpg-key: ${{ secrets.GPG_KEY }}
-
-          docker-registry-id: ossrh
-          docker-registry-username: ${{ secrets.OSSRH_USERNAME }}
-          docker-registry-password: ${{ secrets.OSSRH_PASSWORD }}
-
-          maven-development-version-number: ${parsedVersion.majorVersion}.${parsedVersion.nextMinorVersion}-SNAPSHOT
-          maven-release-version-number: ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --verify-tag \
+            --title "Keycloak Events ${GITHUB_REF_NAME#v}" \
+            --generate-notes

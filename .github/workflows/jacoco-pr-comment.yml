@@ -37,7 +37,7 @@ jobs:
           gh pr view --repo "${PR_TARGET_REPO}" "${PR_BRANCH}" \
             --json 'number,headRefOid' \
             --jq '"number=\(.number)\nhead-sha=\(.headRefOid)"' \
-            >> $GITHUB_OUTPUT
+            >> "$GITHUB_OUTPUT"
 
   comment:
     name: Comment Jacoco Report to PR safely

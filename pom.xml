@@ -3,11 +3,11 @@
   <groupId>io.phasetwo.keycloak</groupId>
   <artifactId>keycloak-events</artifactId>
   <packaging>jar</packaging>
-  <version>0.55</version>
+  <version>0.55-bravo.1</version>
 
   <name>Phase Two Keycloak Events</name>
   <description>Useful Keycloak EventListener implementations and utilities.</description>
-  <url>https://github.com/p2-inc/keycloak-events</url>
+  <url>https://github.com/bravoaero/keycloak-events</url>
 
   <parent>
     <groupId>com.github.xgp</groupId>
@@ -43,13 +43,26 @@
   </properties>
 
   <scm>
-    <url>https://github.com/p2-inc/keycloak-events</url>
-    <connection>scm:git:git@github.com:p2-inc/keycloak-events.git</connection>
-    <tag>v0.55</tag>
+    <url>https://github.com/bravoaero/keycloak-events</url>
+    <connection>scm:git:git@github.com:bravoaero/keycloak-events.git</connection>
+    <tag>v0.55-bravo.1</tag>
   </scm>
 
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${project.basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

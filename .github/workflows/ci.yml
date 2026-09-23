@@ -21,15 +21,27 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Build with Maven
+        id: maven-build
+        continue-on-error: true
         run: mvn --batch-mode --no-transfer-progress clean verify
       - name: Upload provider JAR
+        if: steps.maven-build.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
           name: keycloak-events
           path: target/keycloak-events-*.jar
           if-no-files-found: error
           retention-days: 14
+      - name: Upload Maven test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Upload JaCoCo Coverage Report as an artifact
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: jacoco-report
@@ -49,3 +61,8 @@ jobs:
         uses: jjmrocha/jacoco-summary@v1.1.1
         with:
           jacoco-csv-file: target/site/jacoco/jacoco.csv
+      - name: Fail when Maven build failed
+        if: steps.maven-build.outcome == 'failure'
+        run: |
+          echo "::error::Maven build or tests failed. See the Maven step and surefire-reports artifact."
+          exit 1

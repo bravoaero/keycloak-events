@@ -31,8 +31,8 @@ jobs:
             exit 1
           fi
 
-      - name: Build and test
-        run: mvn --batch-mode --no-transfer-progress clean verify
+      - name: Build release JAR
+        run: mvn --batch-mode --no-transfer-progress -DskipTests clean package
 
       - name: Prepare release assets
         shell: bash
